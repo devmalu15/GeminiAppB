@@ -1,12 +1,12 @@
 # Stage 1: Build the application
-FROM maven:3.9.5-amazoncorretto-22 AS build
+FROM maven:3.9.5-amazoncorretto-21 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 RUN mvn -B package -DskipTests
 
 # Stage 2: Create the final, lightweight image
-FROM amazoncorretto:22-alpine-jre
+FROM amazoncorretto:21-al2-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
