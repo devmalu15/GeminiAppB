@@ -1,13 +1,12 @@
-# Stage 1: Build the application
-FROM eclipse-temurin:21-jdk AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn -B package -DskipTests
+FROM maven:3.8.3-openjdk-17 AS build
+COPY . .
+RUN mvn clean install
 
-# Stage 2: Create the final, lightweight image
-FROM eclipse-temurin:21-jre
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+#
+# Package stage
+#
+FROM eclipse-temurin:17-jdk
+COPY --from=build /target/SpringAI-0.0.1-SNAPSHOT.jar app.jar
+# ENV PORT=8080
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
