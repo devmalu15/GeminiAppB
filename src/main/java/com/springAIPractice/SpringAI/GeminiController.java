@@ -105,9 +105,8 @@ public class GeminiController {
 
 
     @PostMapping("/pdfwithJD")
-    public ResponseEntity<?> uploadPDFandJD(@RequestParam("file") MultipartFile file, @RequestBody Map<String, String> payload){
-        String message = payload.get("text");
-        // Process message as needed
+    public ResponseEntity<?> uploadPDFandJD(@RequestParam("file") MultipartFile file, @RequestParam("jobDescription") String message) {
+        // The message is now received as a request parameter
         System.out.println("Received message: " + message);
 
         if (file.isEmpty() || !file.getContentType().equals("application/pdf")) {
@@ -115,16 +114,17 @@ public class GeminiController {
         }
 
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
-            // PDFTextStripper extracts the text from the document
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(document);
             System.out.println("Extracted Text: " + text);
-            // Pass the extracted text to your AI model
+
             String response = chatClient.prompt(text + " this is the text extracted from a resume pdf." +
                     " Rate this resume out of 100 based on the following Job Description." +
                     message +
-                    " Also tell 3 good points and 3 weaknesses(if there are) and keep the answer short(max 150 words).").call().content();
+                    " Also tell 3 good points and 3 weaknesses(if there are) and keep the answer short(max 150 words)." +
+                    "Use ATS based grading system.").call().content();
             System.out.println(response);
+
             return ResponseEntity.ok(Map.of("message", response));
         } catch (IOException e) {
             return ResponseEntity.status(500).body("Error processing the PDF file.");
