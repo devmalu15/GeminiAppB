@@ -95,7 +95,8 @@ public class GeminiController {
             String text = stripper.getText(document);
             System.out.println("Extracted Text: " + text);
             // Pass the extracted text to your AI model
-            String response = chatClient.prompt(text + " this is the text extracted from a resume pdf. Rate this resume out of 10 and also tell 3 good points and 3 weaknesses keep the answer short(max 200 words).").call().content();
+            String response = chatClient.prompt(text + " this is the text extracted from a resume pdf. Rate this resume out of 100 (ATS grading) and also tell 3 good points and 3 weaknesses keep the answer short(max 150 words)." +
+                    "do not add any other information. do not ask any other questions. just tell the things that are asked.").call().content();
             System.out.println(response);
             return ResponseEntity.ok(Map.of("message", response));
         } catch (IOException e) {
@@ -122,7 +123,9 @@ public class GeminiController {
                     " Rate this resume out of 100 based on the following Job Description." +
                     message +
                     " Also tell 3 good points and 3 weaknesses(if there are) and keep the answer short(max 150 words)." +
-                    "Use ATS based grading system.").call().content();
+                    "Use ATS based grading system." +
+                    "do not add any other information. do not ask any question." +
+                    "if the resume does not match the job description in any sense then rate it low and tell the user about the mismatch.").call().content();
             System.out.println(response);
 
             return ResponseEntity.ok(Map.of("message", response));
